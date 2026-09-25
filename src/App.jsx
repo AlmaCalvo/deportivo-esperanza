@@ -8,7 +8,7 @@ import Analytics from './components/Analytics';
 import AdminPanel from './components/AdminPanel';
 
 function Shell() {
-  const { session, loading } = useAuth();
+  const { session, loading, isAdmin } = useAuth();
 
   if (loading) return <div className="loading-screen">Cargando…</div>;
   if (!session) return <Login />;
@@ -22,16 +22,14 @@ function Shell() {
           <Route path="/analisis" element={<Analytics />} />
           <Route path="/carga" element={<AdminOnly><LiveScoring /></AdminOnly>} />
           <Route path="/admin" element={<AdminOnly><AdminPanel /></AdminOnly>} />
-          <Route path="*" element={<Navigate to="/perfil" replace />} />
+          {/* Si es admin, redirigir por defecto a la carga de partidos; si es jugadora, a su perfil */}
+          <Route path="*" element={<Navigate to={isAdmin ? "/carga" : "/perfil"} replace />} />
         </Routes>
       </main>
     </BrowserRouter>
   );
 }
 
-// Un usuario puede tener "perfil doble": ser jugadora (ve /perfil normalmente)
-// y además admin (accede también a /carga y /admin). Este guard solo protege
-// las rutas exclusivas de admin; /perfil y /analisis quedan abiertas a todas.
 function AdminOnly({ children }) {
   const { isAdmin } = useAuth();
   if (!isAdmin) return <Navigate to="/perfil" replace />;
