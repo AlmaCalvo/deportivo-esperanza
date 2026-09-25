@@ -2,7 +2,7 @@ import { NavLink } from 'react-router-dom';
 import { useAuth } from '../contexts/AuthContext';
 
 export default function Navbar() {
-  const { profile, isStaff, signOut } = useAuth();
+  const { profile, isAdmin, signOut } = useAuth();
 
   return (
     <header className="navbar">
@@ -20,10 +20,15 @@ export default function Navbar() {
         <NavLink to="/analisis" className={({ isActive }) => (isActive ? 'active' : '')}>
           Análisis
         </NavLink>
-        {isStaff && (
-          <NavLink to="/carga" className={({ isActive }) => (isActive ? 'active' : '')}>
-            Carga en vivo
-          </NavLink>
+        {isAdmin && (
+          <>
+            <NavLink to="/carga" className={({ isActive }) => (isActive ? 'active' : '')}>
+              Cargar Partido
+            </NavLink>
+            <NavLink to="/admin" className={({ isActive }) => (isActive ? 'active' : '')}>
+              Panel Admin
+            </NavLink>
+          </>
         )}
       </nav>
 

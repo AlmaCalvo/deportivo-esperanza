@@ -32,7 +32,7 @@ export function AuthProvider({ children }) {
       setLoading(true);
       const { data, error } = await supabase
         .from('profiles')
-        .select('role, player_id, full_name, players(id, number, name)')
+        .select('id, role, player_id, full_name, email, players(id, number, name)')
         .eq('id', session.user.id)
         .single();
 
@@ -57,7 +57,7 @@ export function AuthProvider({ children }) {
     session,
     user: session?.user ?? null,
     profile,
-    isStaff: profile?.role === 'cuerpo_tecnico',
+    isAdmin: profile?.role === 'admin',
     loading,
     signOut: () => supabase.auth.signOut(),
   };

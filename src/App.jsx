@@ -5,6 +5,7 @@ import Login from './components/Login';
 import LiveScoring from './components/LiveScoring';
 import PlayerDashboard from './components/PlayerDashboard';
 import Analytics from './components/Analytics';
+import AdminPanel from './components/AdminPanel';
 
 function Shell() {
   const { session, loading } = useAuth();
@@ -19,7 +20,8 @@ function Shell() {
         <Routes>
           <Route path="/perfil" element={<PlayerDashboard />} />
           <Route path="/analisis" element={<Analytics />} />
-          <Route path="/carga" element={<StaffOnly><LiveScoring /></StaffOnly>} />
+          <Route path="/carga" element={<AdminOnly><LiveScoring /></AdminOnly>} />
+          <Route path="/admin" element={<AdminOnly><AdminPanel /></AdminOnly>} />
           <Route path="*" element={<Navigate to="/perfil" replace />} />
         </Routes>
       </main>
@@ -27,9 +29,12 @@ function Shell() {
   );
 }
 
-function StaffOnly({ children }) {
-  const { isStaff } = useAuth();
-  if (!isStaff) return <Navigate to="/perfil" replace />;
+// Un usuario puede tener "perfil doble": ser jugadora (ve /perfil normalmente)
+// y además admin (accede también a /carga y /admin). Este guard solo protege
+// las rutas exclusivas de admin; /perfil y /analisis quedan abiertas a todas.
+function AdminOnly({ children }) {
+  const { isAdmin } = useAuth();
+  if (!isAdmin) return <Navigate to="/perfil" replace />;
   return children;
 }
 

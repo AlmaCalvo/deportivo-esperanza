@@ -5,15 +5,15 @@ import { STAT_GROUPS, efectividadAtaque, efectividadRecepcion, efectividadSaque 
 import StatDrilldown from './StatDrilldown';
 
 export default function PlayerDashboard() {
-  const { profile, isStaff } = useAuth();
+  const { profile, isAdmin } = useAuth();
   const [allPlayers, setAllPlayers] = useState([]);
   const [selectedPlayerId, setSelectedPlayerId] = useState(profile?.player_id ?? '');
   const [matchRows, setMatchRows] = useState([]);
   const [loading, setLoading] = useState(true);
 
-  // El cuerpo técnico puede mirar el perfil de cualquier jugadora.
+  // Los admins pueden además mirar el perfil de cualquier jugadora.
   useEffect(() => {
-    if (isStaff) {
+    if (isAdmin) {
       supabase
         .from('players')
         .select('id, number, name')
@@ -21,11 +21,14 @@ export default function PlayerDashboard() {
         .order('number')
         .then(({ data }) => setAllPlayers(data ?? []));
     }
-  }, [isStaff]);
+  }, [isAdmin]);
 
+  // Perfil doble: si la cuenta está vinculada a una jugadora, por defecto
+  // mostramos SUS estadísticas — sea admin o no. Un admin puede después
+  // cambiar el selector para ver a otra jugadora.
   useEffect(() => {
-    if (!isStaff && profile?.player_id) setSelectedPlayerId(profile.player_id);
-  }, [isStaff, profile]);
+    if (profile?.player_id) setSelectedPlayerId(profile.player_id);
+  }, [profile]);
 
   useEffect(() => {
     if (!selectedPlayerId) {
@@ -52,7 +55,7 @@ export default function PlayerDashboard() {
     return t;
   }, [matchRows]);
 
-  if (!isStaff && !profile?.player_id) {
+  if (!isAdmin && !profile?.player_id) {
     return (
       <div className="empty-state">
         <h2>Tu cuenta todavía no está vinculada</h2>
@@ -66,7 +69,7 @@ export default function PlayerDashboard() {
 
   return (
     <div className="dashboard">
-      {isStaff && (
+      {isAdmin && (
         <div className="dashboard-player-select">
           <label>Jugadora</label>
           <select value={selectedPlayerId} onChange={(e) => setSelectedPlayerId(e.target.value)}>
